@@ -4,7 +4,7 @@ import time
 import logging
 from setup import utils
 from xProjectData import core as XPDC
-from xProjectData import assets as XPDA
+from xAssets import core as XPDA
 from xConfig import assetConfig
 import maya.cmds as MC
 import maya.mel as MM
@@ -14,7 +14,6 @@ reload(utils)
 
 # setup
 logger = logging.getLogger(__name__)
-
 
 def timeit(method):
 
@@ -32,6 +31,7 @@ def timeit(method):
  
 
 def setBlock(block):
+
     XPDC.setBlock(block)
     refreshHeadsUpDisplay()
     utils.createProjectFolders()
@@ -69,7 +69,6 @@ def getGeometryObjectForSelection():
 
 
 class MayaGeometry(XPDA.Geometry):
-
     def __init__(self, name, dagPath=None):
         XPDA.Asset.__init__(self, name, 'geometry')
 
@@ -88,6 +87,8 @@ class MayaGeometry(XPDA.Geometry):
 
 
     def publish(self, framestart=1, frameend=1):
+
+        
         versionObj = self.__createNewVersion(framestart, frameend)
         return versionObj
 
@@ -158,7 +159,7 @@ class MayaGeometryVersion(XPDA.GeometryVersion):
         for lod in self._getDefaultLods():
             for rep in self._getDefaultReps():
                 fullLodRepPath = os.path.join(self.versionPath, lod, rep)
-                lodRep = __import__("xMaya.reps.{}.{}".format(lod, rep), fromlist=["xMaya"]) #when moving this to parent object (xasset). To get the lod and reps
+                lodRep = __import__("xAssets.reps.{}.{}".format(lod, rep), fromlist=["xAssets"]) #when moving this to parent object (xasset). To get the lod and reps
                 reload(lodRep)
                 lodRep.write(fullLodRepPath, self.__sourceFile, self.framestart, self.frameend)
 
@@ -178,6 +179,6 @@ class MayaGeometryVersion(XPDA.GeometryVersion):
 
         assetName = self.getName()
         fullLodRepPath = os.path.join(self.versionPath, lod, repPathToken)
-        lodRep = __import__("xMaya.reps.{}.{}".format(lod, rep), fromlist=["xMaya"])
+        lodRep = __import__("xAssets.reps.{}.{}".format(lod, rep), fromlist=["xAssets"])
         reload(lodRep)
         lodRep.load(assetName, fullLodRepPath)
