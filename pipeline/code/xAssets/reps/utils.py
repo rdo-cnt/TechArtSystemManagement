@@ -5,7 +5,7 @@ from xConfig import assetConfig
 
 
 def timeit(method):
-
+	
     def timed(*args, **kw):
         ts = time.time()
         result = method(*args, **kw)
@@ -20,7 +20,11 @@ def timeit(method):
 
 
 def openAndPrepSourceFile(sourceFile):
+	"""Opens the file and prepares it for exporting
 
+	:param sourceFile: File name of the source file
+	:type sourceFile: string
+	"""
 	MC.file(sourceFile, force=True, open=True)
 	baseNode = MC.createNode('transform', n='base')
 	geoNode = MC.ls(type='xGeometry')[0]
@@ -31,7 +35,8 @@ def openAndPrepSourceFile(sourceFile):
 
 
 def prepLow():
-
+	"""Poly reduces all the meshes
+	"""
 	meshes = MC.ls(type='mesh', l=True)
 	for mesh in meshes:
 		MC.polyReduce(	mesh,
@@ -68,6 +73,13 @@ def prepLow():
 
 
 def abcImport(assetName, fullRepLodPath):
+	"""Function to import abc files
+
+	:param assetName: Asset's name
+	:type assetName: string
+	:param fullRepLodPath: RepLodPath
+	:type fullRepLodPath: string
+	"""
 	assetNode = MC.createNode('xGeometry', n=assetName)
 	baseNode = '{}|base'.format(assetNode)
 	MC.AbcImport(fullRepLodPath, reparent='|{}'.format(assetNode), mode='import')
@@ -78,6 +90,13 @@ def abcImport(assetName, fullRepLodPath):
 
 
 def abcGpuImport(assetName, fullRepLodPath):
+	"""Function to import gpu files
+
+	:param assetName: Asset's name
+	:type assetName: string
+	:param fullRepLodPath: RepLodPath
+	:type fullRepLodPath: string
+	"""
 	assetNode = MC.createNode('xGeometry', n=assetName)
 	assetTfNode = MC.createNode('transform', n='{}Gpu'.format(assetName), parent=assetNode)
 	assetShapeNode = MC.createNode('gpuCache', n='{}GpuShape'.format(assetName), parent=assetTfNode)
@@ -85,6 +104,13 @@ def abcGpuImport(assetName, fullRepLodPath):
 	MC.select(assetNode)
 
 def objImport(assetName, fullRepLodPath):
+	"""Function to import obj files
+
+	:param assetName: Asset's name
+	:type assetName: string
+	:param fullRepLodPath: RepLodPath
+	:type fullRepLodPath: string
+	"""
 	assetNode = MC.createNode('xGeometry', n=assetName)
 	baseNode = '{}|base'.format(assetNode)
 	import_nodes = MC.file(fullRepLodPath,i=True,type="OBJ",rpr="OBJ_Import",rnn=True)

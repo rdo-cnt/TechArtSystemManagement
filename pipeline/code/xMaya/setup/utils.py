@@ -5,7 +5,8 @@ import os
 import maya.mel as MM
 
 def createProjectFolders():
-
+    """Create folders based on the projectConfig, either on an active project or the sandbox
+    """
     user = os.getenv('USER')
 
     # check basepath
@@ -39,4 +40,9 @@ def createProjectFolders():
 
 
 def setProject(projectPath):
+    """Set the Maya project
+
+    :param projectPath: Project directory
+    :type projectPath: string
+    """
     MM.eval('setProject "{}"'.format(projectPath.replace(os.sep, '/')))

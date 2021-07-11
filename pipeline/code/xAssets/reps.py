@@ -3,7 +3,11 @@
 
 
 def prepSaveSourceFileForAsset(dagPath):
+	"""Prepares source file for the asset
 
+	:param dagPath: DAG path
+	:type dagPath: string
+	"""
 	# get node name
 	node = dagPath.split('|')[-1]
 

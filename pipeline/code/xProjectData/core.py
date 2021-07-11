@@ -11,18 +11,21 @@ logger = logging.getLogger(__name__)
 
 
 def getListOfProjects():
-	'''
-	returns a list of active projects
-	'''
+	"""
+	Returns a list of active projects
+	"""
 	projects = os.listdir(baseConfig.PROJECTS_PATH)
 
 	return projects
 
 
 def getListOfProjectBlocks(project):
-	'''
-	returns a list of active projects
-	'''
+
+	"""Returns a list of active projects
+
+	:return: List of project blocks
+	:rtype: list
+	"""
 	projectPath = os.path.join(baseConfig.PROJECTS_PATH, project)
 	blocks = os.listdir(projectPath)
 
@@ -30,31 +33,64 @@ def getListOfProjectBlocks(project):
 
 
 def setProject(project):
+	"""Set the project in the environment variable
+
+	:param project: Project name
+	:type project: string 
+	:raises Exception: Project must exist to be set
+	"""
 	if not project in getListOfProjects():
 		raise Exception('Invalid project')
 	os.environ['ACTIVE_PROJECT'] = project
 
 
 def setBlock(block):
+	"""Set the block in the environment variable
+
+	:param block: Block name
+	:type block: string 
+	:raises Exception: Block must exist to be set
+	"""
 	if not block in getListOfProjectBlocks(os.getenv('ACTIVE_PROJECT')):
 		raise Exception('Invalid block')
 	os.environ['ACTIVE_BLOCK'] = block
 
 
 def setProjectBlock(project, block):
+	"""Sets the project and block at the same time
+
+	:param project: Project name
+	:type project: string
+	:param block: Block name
+	:type block: string
+	"""
 	setProject(project)
 	setBlock(block)
 
 
 def getProjectBlock():
+	"""Obtain the active project and block
+
+	:return: Return the active project and active block
+	:rtype: string, string
+	"""
 	return os.getenv('ACTIVE_PROJECT'), os.getenv('ACTIVE_BLOCK')
 
 
 
 class Project(object):
-
+	"""The root of all the content inside it, the project holds blocks with assets
+	"""
 	def __init__(self, project=None, create=False):
+		"""Initialize asset
 
+		:param project: Project name, defaults to None
+		:type project: string, optional
+		:param create: Will the project be created?, defaults to False
+		:type create: bool, optional
+		:raises Exception: A project name must be passed on as a parameter
+		:raises Exception: The project name must exist!
+		"""
 		# if the user wants it created
 		if create:
 			self.__project = project
@@ -78,11 +114,24 @@ class Project(object):
 
 
 	def __isValidProject(self, project):
+		"""Checks if project exists
+
+		:param project: Project name
+		:type project: string
+		:return: Return if project exists
+		:rtype: bool
+		"""
 		return project in getListOfProjects()
 
 
 	def __createProject(self, project):
+		"""Create the project directory
 
+		:param project: [description]
+		:type project: [type]
+		:raises Exception: The project id must have 4 letters
+		:raises Exception: The project id needs to be lower cased with no digits or special characters
+		"""
 		# test for existing
 		if project in getListOfProjects():
 			logger.error('this project is already in place')
@@ -111,11 +160,29 @@ class Project(object):
 
 
 	def createBlock(self, block, validate=True, prod=True):
+		"""Create a block object
+
+		:param block: Block name
+		:type block: string
+		:param validate: Will validate?, defaults to True
+		:type validate: bool, optional
+		:param prod: Will be set in production, defaults to True
+		:type prod: bool, optional
+		:return: Return new block
+		:rtype: block
+		"""
 		block = Block(block, create=True, validate=validate, prod=prod)
 		return block
 
 
 	def createBlocks(self, blocks):
+		"""Create multiple blocks
+
+		:param blocks: List of blocks
+		:type blocks: list
+		:return: List of objects
+		:rtype: list
+		"""
 		blockObjs = []
 		for block in blocks:
 			blockObj = self.createBlock(block)
@@ -125,9 +192,11 @@ class Project(object):
 
 
 	def getListOfProjectBlocks(self):
-		'''
-		returns a list of active projects
-		'''
+		"""Returns a list of active projects
+
+		:return: list of blocks
+		:rtype: list
+		"""
 		projectPath = os.path.join(baseConfig.PROJECTS_PATH, self.__project)		
 		blocks = os.listdir(projectPath)
 		blocks.sort()
@@ -135,8 +204,13 @@ class Project(object):
 
 
 	def getListOfProductionBlocks(self):
+		"""Returns a list of production blocks
+
+		:return: Return a list of production blocks
+		:rtype: list
+		"""
 		'''
-		returns a list of production blocks
+		
 		'''
 		blocks = []
 		for block in self.getListOfProjectBlocks():
@@ -149,9 +223,23 @@ class Project(object):
 
 
 class Block(object):
-
+	"""Second layer of a project. Can be a scene of movie.
+	"""
 	def __init__(self, block=None, create=False, validate=True, prod=True):
+		"""Initialize the block
 
+		:param block: block Name, defaults to None
+		:type block: string, optional
+		:param create: Will be created?, defaults to False
+		:type create: bool, optional
+		:param validate: will be validated?, defaults to True
+		:type validate: bool, optional
+		:param prod: Will be set in production, defaults to True
+		:type prod: bool, optional
+		:raises Exception: A project must be assigned in the environment variables
+		:raises Exception: A block must be assigned in the environment variables
+		:raises Exception: A valid block name must be given
+		"""
 		# make sure we have an active project
 		self.__project = os.getenv('ACTIVE_PROJECT')
 		if self.__project == None:
@@ -181,11 +269,30 @@ class Block(object):
 
 
 	def __isValidBlock(self, block):
+		"""Checks if block directory exists
+
+		:param block: Block name
+		:type block: string
+		:return: Does the asset folder exist in the block folder?
+        :rtype: bool
+		"""
 		blockPath = os.path.join(baseConfig.PROJECTS_PATH, self.__project, block)
 		return os.path.isdir(blockPath)
 
 
 	def __createBlock(self, block, validate=True, prod=True):
+		"""[summary]
+
+		:param block: Block name
+		:type block: string
+		:param validate: Will validate?, defaults to True
+		:type validate: bool, optional
+		:param prod: Will be set in production, defaults to True
+		:type prod: bool, optional
+		:raises Exception: Block must not already exist
+		:raises Exception: Project ID must 4 letters and 4 digits
+		:raises Exception: Block ID must start with 4 lower case letters
+		"""
 
 		# test for existing
 		if self.__isValidBlock(block):
@@ -222,7 +329,13 @@ class Block(object):
 
 
 	def __getBlockType(self, block):
-		
+		"""Get the block type
+
+		:param block: Block name
+		:type block: string
+		:return: Block type
+		:rtype: string
+		"""
 		if block == 'code':
 			return 'code'
 		elif block == 'config':
@@ -231,19 +344,49 @@ class Block(object):
 			return 'production'
 
 	def getType(self):
+		"""Get type
+
+		:return: Type
+		:rtype: string
+		"""
 		return self.__type
 
 	def isAssetBlock(self):
+		"""Checks if block's of asset type
+
+		:return: Is of asset type?
+		:rtype: bool
+		"""
 		return self.getType() == 'assets'
 
 	def isCodeBlock(self):
+		"""Checks if block's of code type
+
+		:return: Is of code type?
+		:rtype: bool
+		"""
 		return self.getType() == 'code'
 
 	def isConfigBlock(self):
+		"""Checks if block's of config type
+
+		:return: Is of config type?
+		:rtype: bool
+		"""
 		return self.getType() == 'config'
 
 	def isProductionBlock(self):
+		"""Checks if block's of production type
+
+		:return: Is of production type?
+		:rtype: bool
+		"""
 		return self.getType() == 'production'
 
 	def getBlockPath(self):
+		"""Get the block's path
+
+		:return: Block's directory path
+		:rtype: string
+		"""
 		return os.path.join(baseConfig.PROJECTS_PATH, self.__project, self.__block)

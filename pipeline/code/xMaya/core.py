@@ -31,20 +31,32 @@ def timeit(method):
  
 
 def setBlock(block):
+    """Create the block directory
 
+    :param block: [description]
+    :type block: [type]
+    """
     XPDC.setBlock(block)
     refreshHeadsUpDisplay()
     utils.createProjectFolders()
 
 
 def setProjectBlock(project, block):
+    """Create a Project and block directory folder simultaneously
+
+    :param project: Project name
+    :type project: string
+    :param block: Block name
+    :type block: string
+    """
     XPDC.setProjectBlock(project, block)
     refreshHeadsUpDisplay()
     utils.createProjectFolders()
 
 
 def refreshHeadsUpDisplay():
-
+    """Update heads up display with project and block namess
+    """
     project, block = XPDC.getProjectBlock()
     projectBlock = '{}/{}'.format(project, block)
 
@@ -54,6 +66,11 @@ def refreshHeadsUpDisplay():
 
 
 def getGeometryObjectForSelection():
+    """Set selected xGeometry nodes as a MayaGeometry object
+
+    :return: Maya Geometry object
+    :rtype: mayaGeometry
+    """
     selection = MC.ls(sl=True, l=True)
     if not len(selection) == 1:
         logger.error('You dont have exactly one object selected')
@@ -100,9 +117,23 @@ class MayaGeometry(XPDA.Geometry):
 
 
 class MayaGeometryVersion(XPDA.GeometryVersion):
-
+    """Overloads the GeometryVersion class, adding methods
+    """
 
     def __init__(self, asset, version, create=False, framestart=1, frameend=1):
+        """[summary]
+
+        :param asset: Asset reference
+        :type asset: asset
+        :param version: Version reference
+        :type version: version
+        :param create: Should this be created as a folder, defaults to False
+        :type create: bool, optional
+        :param framestart: First animation frame, defaults to 1
+        :type framestart: int, optional
+        :param frameend: Last animation frame, defaults to 1
+        :type frameend: int, optional
+        """
         if create:
             self.__preProcess()
 
@@ -116,13 +147,18 @@ class MayaGeometryVersion(XPDA.GeometryVersion):
 
 
     def __preProcess(self):
+        """Before creating reps, check if the scene is saved
+
+        :raises Exception: File must be saved before publishing
+        """
         if MC.file(q=True, modified=True):
             raise Exception('File is not saved. Cannot publish.')
         self.__currentFile = MC.file(q=True, sn=True)
 
 
     def __prepSaveSourceFileForVersion(self):
-
+        """Adjust the scene to save only the necessary meshes
+        """
         # get node name
         node = self.asset.assetDagPath.split('|')[-1]
 
@@ -154,7 +190,8 @@ class MayaGeometryVersion(XPDA.GeometryVersion):
 
 
     def __createReps(self):
-
+        """Going through the asset's config, go through each lod and rep, then write every file for each repo
+        """
         # iterate over all lods and reps and write them out
         for lod in self._getDefaultLods():
             for rep in self._getDefaultReps():
@@ -167,12 +204,20 @@ class MayaGeometryVersion(XPDA.GeometryVersion):
 
 
     def __postProcess(self):
+        """Write the meta data and open the file after creating it
+        """
         self._writeMetaData()
         MC.file(self.__currentFile, force=True, open=True)
 
 
     def importAsType(self, lod, rep):
+        """Use the lod and reps to import the appropriate
 
+        :param lod: Level of detail name
+        :type lod: string
+        :param rep: Representation name
+        :type rep: string
+        """
         # map for different rep types
         repMap = assetConfig.REPMAP
         repPathToken = repMap[rep]
